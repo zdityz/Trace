@@ -1,0 +1,15 @@
+.vscode/**
+.vscode-test/**
+extension/**
+media/**/*.map
+media/**/*.test.cjs
+tracer/tests/**
+scripts/**
+.github/**
+README.txt
+**/__pycache__/**
+**/*.pyc
+.gitignore
+.editorconfig
+tsconfig.json
+out/**/*.map

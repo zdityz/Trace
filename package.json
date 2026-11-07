@@ -1,0 +1,148 @@
+{
+  "name": "trace",
+  "displayName": "Trace",
+  "description": "Trace Python program execution in VS Code. Step through runtime state, inspect variables, visualize data structures, and investigate errors.",
+  "version": "1.0.2",
+  "publisher": "zdityz",
+  "license": "SEE LICENSE IN LICENSE",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Visualization",
+    "Education",
+    "Debuggers"
+  ],
+  "keywords": [
+    "python",
+    "execution-trace",
+    "code-tracing",
+    "debugging",
+    "visualizer",
+    "data-structures",
+    "algorithms",
+    "education",
+    "runtime-inspector",
+    "step-through"
+  ],
+  "main": "./out/extension.js",
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "vscode:prepublish": "npm run compile",
+    "test:python": "node scripts/run-python-tests.cjs",
+    "test:history": "node --test media/history-model.test.cjs",
+    "test:output": "node --test media/output-comparison.test.cjs",
+    "test": "npm run test:python && npm run test:trace-state && npm run test:history && npm run test:output && npm run test:structures && npm run test:visualization && npm run test:structure-style && npm run test:retention && npm run test:process-tree && npm run test:python-interpreter && npm run test:process-state && npm run test:input-detection",
+    "test:trace-state": "node --test media/trace-state.test.cjs",
+    "test:structures": "node --test media/structure-model.test.cjs",
+    "test:visualization": "node --test media/visualization-cache.test.cjs",
+    "test:structure-style": "node --test media/structure-style.test.cjs",
+    "test:retention": "node --test media/trace-retention.test.cjs",
+    "package:vsix": "npx --yes @vscode/vsce package",
+    "test:process-tree": "node --test media/process-tree.test.cjs",
+    "test:python-interpreter": "node --test media/python-interpreter.test.cjs",
+    "check:metadata": "node scripts/check-metadata.cjs",
+    "test:process-state": "node --test media/trace-process-state.test.cjs",
+    "test:input-detection": "node --test media/input-detection.test.cjs"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "trace.runCurrentFile",
+        "title": "Trace: Run Current Python File",
+        "category": "Trace"
+      },
+      {
+        "command": "trace.runWithTestCase",
+        "title": "Trace: Run with Test Case",
+        "category": "Trace"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "trace.runCurrentFile",
+          "when": "editorLangId == python",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "trace.runCurrentFile",
+          "when": "editorLangId == python",
+          "group": "navigation"
+        },
+        {
+          "command": "trace.runWithTestCase",
+          "when": "editorLangId == python",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Trace",
+      "properties": {
+        "trace.pythonPath": {
+          "type": "string",
+          "default": "",
+          "description": "Optional user-level Python executable override. When empty, Trace uses the interpreter selected in the Microsoft Python extension, then falls back to python3 on macOS/Linux or python on Windows.",
+          "scope": "machine"
+        },
+        "trace.executionTimeoutMs": {
+          "type": "number",
+          "default": 15000,
+          "minimum": 1000,
+          "maximum": 120000,
+          "description": "Maximum time in milliseconds allowed for a traced Python run. The process is terminated when this limit is reached."
+        },
+        "trace.maxEvents": {
+          "type": "number",
+          "default": 20000,
+          "minimum": 100,
+          "maximum": 50000,
+          "description": "Maximum number of trace events recorded for one run. When the limit is reached, Trace stops the program and keeps the history recorded so far, so output after that point is not produced."
+        },
+        "trace.promptForInput": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "always",
+            "never"
+          ],
+          "default": "auto",
+          "enumDescriptions": [
+            "Ask for standard input only when the file appears to read it (input(), sys.stdin, fileinput).",
+            "Always ask for standard input before a run.",
+            "Never ask; the program receives empty standard input."
+          ],
+          "description": "Controls when Trace asks for standard input before running a file. \"Run with Test Case\" always asks."
+        }
+      }
+    }
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "Trace can open in Restricted Mode, but executing Python files requires a trusted workspace."
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.7.2"
+  },
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#101420",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zdityz/Trace.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zdityz/Trace/issues"
+  },
+  "homepage": "https://github.com/zdityz/Trace#readme"
+}

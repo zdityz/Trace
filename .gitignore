@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+node_modules/
+out/
+.venv/
+.DS_Store
+.vscode-test/
+*.vsix
+trace.json
