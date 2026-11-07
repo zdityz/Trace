@@ -1159,10 +1159,14 @@ def main() -> int:
         # especially important on Windows, where process-tree termination may
         # have to fall back to a hard kill that cannot run Python's SIGTERM
         # handler. Later checkpoints replace it atomically as execution moves.
-        write_checkpoint()
+        write_checkpoint() 
         for stream in (sys.stdout, sys.stderr):
             try:
-                stream.reconfigure(encoding="utf-8", errors="replace")
+                stream.reconfigure(
+                    encoding="utf-8",
+                    errors="replace",
+                    newline="\n",
+                )
             except (AttributeError, OSError, ValueError):
                 pass
         sys.argv = [str(script_path)]

@@ -71,7 +71,7 @@ def resolved_state(trace, index=-1):
 class TracerIntegrationTests(unittest.TestCase):
     def run_script(
         self, source: str, stdin: str | None = None,
-        max_events: int = 5_000, max_bytes: int = 16 * 1024 * 1024,
+        max_events: int = 20_000, max_bytes: int = 16 * 1024 * 1024,
         timeout: int = 30,
     ):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -750,6 +750,10 @@ class RobustnessRegressionTests(unittest.TestCase):
         self.assertFalse(any(e["event"] == "capture_error" for e in trace["events"]))
         self.assert_every_event_replayable(trace)
 
+    @unittest.skipIf(
+        os.name == "nt",
+        "Invalid-byte os.fsdecode() surrogateescape behavior is POSIX-specific",
+    )
     def test_surrogateescape_filename_value_is_preserved_losslessly(self):
         source = 'import os\nname = os.fsdecode(b"bad\\xffname")\nsize = len(name)\n'
         result, trace = self.run_script(source)
@@ -758,6 +762,19 @@ class RobustnessRegressionTests(unittest.TestCase):
         last = trace["events"][-1]["state"]["frames"][-1]["locals"]
         self.assertEqual(last["size"]["value"], 8)
         self.assertEqual(last["name"]["value"], "bad\udcffname")
+
+    def test_low_surrogate_string_is_preserved_losslessly_on_all_platforms(self):
+        source = 'name = "bad\\udcffname"\nsize = len(name)\n'
+        result, trace = self.run_script(source)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIsNone(trace["metadata"]["program_error"])
+
+        last = trace["events"][-1]["state"]["frames"][-1]["locals"]
+
+        self.assertEqual(last["size"]["value"], 8)
+        self.assertEqual(last["name"]["value"], "bad\udcffname")
+        self.assert_every_event_replayable(trace)
 
     def test_surrogate_in_exception_message_is_reported_not_fatal(self):
         result, trace = self.run_script('raise ValueError("bad \\ud800 text")\n')
